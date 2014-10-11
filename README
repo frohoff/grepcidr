@@ -1,0 +1,129 @@
+grepcidr 2.0 - Filter IPv4 and IPv6 addresses matching CIDR patterns
+Copyright (C) 2004 - 2014  Jem E. Berkes <jem@berkes.ca>
+	http://www.pc-tools.net/unix/grepcidr/
+	http://www.berkes.ca/
+	
+Sponsored in part by the Spamhaus Project, http://www.spamhaus.org/
+
+
+DESCRIPTION
+-----------
+grepcidr can be used to filter a list of IP addresses against one or more
+Classless Inter-Domain Routing (CIDR) specifications.  As with grep, there
+are options to invert matching and load patterns from a file.  grepcidr is
+capable of efficiently processing large numbers of IPs and networks.
+
+grepcidr has endless uses in network software, including: mail filtering and
+processing, network security, log analysis, and many custom applications.
+
+
+COMPILING & INSTALLING
+----------------------
+	make
+	make doc
+	make install
+
+
+
+COMMAND USAGE
+-------------
+
+	grepcidr [-V] [-cisvx] PATTERN [FILE...]
+	grepcidr [-V] [-cisvx] [-e PATTERN | -f PATFILE] [FILE...]
+
+
+-V	Show software version
+-c	Display count of the matching lines, instead of showing the lines
+-i	Inverse match, include lines without an IP, implies -v
+-s	Enforce strict alignment of CIDR mask; host portion must be all zero
+-v	Invert the sense of matching, output lines with IPs that don't match
+-x	Strict matching, only look at start of line
+-e	Specify individual IP or CIDR pattern(s) on command-line
+-f	Load individual IP or CIDR pattern(s) from file
+
+
+MAJOR 2.0 CHANGES
+-----------------
+
+Version 2.0 adds support for IPv6 addresses.  As with 1.4, version 2.0
+finds IP addresses anywhere on the line.  Use -x to search only from the
+start of line, like versions 1.3 and earlier.
+
+
+USAGE NOTES
+-----------
+
+PATTERN specified on the command line may contain multiple patterns
+separated by whitespace or commas. For long lists of network patterns,
+use -f to load a file where each line contains one pattern (can be IPv4
+or IPv6).  Blank lines and comments starting with # are ignored.
+
+Each IPv4 pattern, whether on command line or loaded from a file, may be:
+a.b.c.d/xy	(CIDR format)
+a.b.c.d-e.f.g.h	(IP range)
+a.b.c.d		(Single IP)
+
+And similarly for IPv6:
+a:b:c::/xyz	(CIDR format)
+a:b:c::		(Single IP)
+
+Dotted-decimal IPv4 format, or any legal IPv6 format is supported (see:
+man inet_pton).
+
+IP addresses that appear anywhere on the input line will be compared and
+matched against the patterns.  To be recognized, an IP (field) must end
+with terminating text.  An IPv4 field terminates upon anything other than
+alphanumeric or dot.  An IPv6 field terminates upon anything other than
+alphanumeric, dot, or colon.  This is to prevent accidental matching of
+ambiguous text such as host names containing reverse DNS.
+
+Use the -x option to do a strict parse without searching the whole line,
+and grepcidr will only look for the single IP at the start of the line.
+
+
+EXAMPLES
+--------
+
+grepcidr -f ournetworks blacklist > abuse.log
+	Find customers (CIDR ranges in file) that appear in blacklist
+	
+grepcidr 2001:db8::/32 log.1 log.2
+	Search for this IPv6 network inside two files
+
+grepcidr 127.0.0.0/8 iplog
+	Searches for any localnet IP addresses inside the iplog file
+
+grepcidr "192.168.0.1-192.168.10.13" iplog
+	Searches for IPs matching indicated range in the iplog file
+
+script | grepcidr -vf whitelist > blacklist
+	Create a blacklist, with whitelisted networks removed (inverse)
+
+grepcidr -f list1 list2
+	Cross-reference two lists, outputs IPs common to both lists
+
+
+EXIT STATUS
+-----------
+
+As with grep: the exit status is 0 if matching IPs are found, and 1
+if not found.  If an error occurred the exit status is 2. 
+	
+	
+THANKS
+------
+
+Sponsored in part by the Spamhaus Project, http://www.spamhaus.org/
+
+Thanks to John Levine <johnl@taugh.com> for sharing his alternative
+implementation.  I used a couple ideas from his code, such as portable
+128-bit numbers and support for multiple input files. However, John's
+version is quite different and represents a significant fork in the project.
+
+Thanks to Ryan Finnie <ryan@finnie.org> for his work on the Debian package.
+I've adopted several of his changes including the Makefile, and the DocBook
+format which now is the source of the man page.  Thanks to Ryan for writing
+the first manual in DocBook format.
+
+Many thanks to Dick Wesseling <ftu@fi.uu.nl> who suggested an improved data
+structure format as well as binary search, to improve grepcidr performance.

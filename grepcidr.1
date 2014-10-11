@@ -1,0 +1,136 @@
+.TH "GREPCIDR" "1" 
+.SH "NAME" 
+grepcidr \(em Filter IPv4 and IPv6 addresses matching CIDR patterns 
+.SH "SYNOPSIS" 
+.PP 
+\fBgrepcidr\fR [\fB\fIOPTIONS\fR\fP]  PATTERN [\fB\fIFILE...\fR\fP]  
+.PP 
+\fBgrepcidr\fR [\fB\fIOPTIONS\fR\fP]  [\fB-e \fIPATTERN\fR\fP | \fB-f \fIPATFILE\fR\fP]  [\fB\fIFILE...\fR\fP]  
+.SH "DESCRIPTION" 
+.PP 
+\fBgrepcidr\fR can be used to filter a list of IP addresses against one or more 
+Classless Inter-Domain Routing (CIDR) specifications.  As with grep, there 
+are options to invert matching and load patterns from a file.  \fBgrepcidr\fR is 
+capable of efficiently processing large numbers of IPs and networks. 
+ 
+.SH "OPTIONS" 
+.IP "\fB-V\fP" 10 
+Show software version 
+.IP "\fB-c\fP" 10 
+Display count of the matching lines, instead of showing the lines 
+.IP "\fB-i\fP" 10 
+Inverse match, include lines without an IP, implies \-v 
+.IP "\fB-s\fP" 10 
+Enforce strict alignment of CIDR mask; host portion must be all zero 
+.IP "\fB-v\fP" 10 
+Invert the sense of matching, output lines with IPs that don't match 
+.IP "\fB-x\fP" 10 
+Strict matching, only look at start of line 
+.IP "\fB-e\fP" 10 
+Specify individual IP or CIDR pattern(s) on command-line 
+.IP "\fB-f\fP" 10 
+Load individual IP or CIDR pattern(s) from file 
+.SH "USAGE NOTES" 
+.PP 
+PATTERN specified on the command line may contain multiple patterns 
+separated by whitespace or commas. For long lists of network patterns, 
+use \fB-f\fP to load a file where each line contains one pattern (can be IPv4 
+or IPv6).  Blank lines and comments starting with # are ignored. 
+ 
+.PP 
+Each IPv4 pattern, whether on command line or loaded from a file, may be: 
+.PP 
+.nf 
+a.b.c.d/xy        (CIDR format) 
+a.b.c.d-e.f.g.h   (IP range) 
+a.b.c.d           (Single IP) 
+ 
+.fi 
+.PP 
+.PP 
+And similarly for IPv6: 
+.PP 
+.nf 
+a:b:c::/xyz       (CIDR format) 
+a:b:c::           (Single IP) 
+ 
+.fi 
+.PP 
+.PP 
+Dotted-decimal IPv4 format, or any legal IPv6 format is supported (see: man inet_pton). 
+ 
+.PP 
+IP addresses that appear anywhere on the input line will be compared and 
+matched against the patterns.  To be recognized, an IP (field) must end 
+with terminating text.  An IPv4 field terminates upon anything other than 
+alphanumeric or dot.  An IPv6 field terminates upon anything other than 
+alphanumeric, dot, or colon.  This is to prevent accidental matching of 
+ambiguous text such as host names containing reverse DNS. 
+ 
+.PP 
+Use the \fB-x\fP option to do a strict parse without searching the whole line, 
+and \fBgrepcidr\fR will only look for the single IP at the start of the line. 
+ 
+.SH "EXAMPLES" 
+.PP 
+\fI\fBgrepcidr\fR \-f ournetworks blacklist > abuse.log\fP 
+.PP 
+Find customers (CIDR ranges in file) that appear in blacklist 
+.PP 
+\fI\fBgrepcidr\fR 2001:db8::/32 log.1 log.2\fP 
+.PP 
+Search for this IPv6 network inside two files 
+.PP 
+\fI\fBgrepcidr\fR 127.0.0.0/8 iplog\fP 
+.PP 
+Searches for any localnet IP addresses inside the iplog file 
+.PP 
+\fI\fBgrepcidr\fR "192.168.0.1-192.168.10.13" iplog\fP 
+.PP 
+Searches for IPs matching indicated range in the iplog file 
+.PP 
+\fI\fBscript\fR | \fBgrepcidr\fR \-vf whitelist > blacklist\fP 
+.PP 
+Create a blacklist, with whitelisted networks removed (inverse) 
+.PP 
+\fI\fBgrepcidr\fR \-f list1 list2\fP 
+.PP 
+Cross-reference two lists, outputs IPs common to both lists 
+.SH "EXIT STATUS" 
+.PP 
+As with grep: the exit status is 0 if matching IPs are found, and 1 
+if not found.  If an error occurred the exit status is 2.  
+ 
+.SH "AUTHOR" 
+.PP 
+This software and manual page was written by Jem Berkes <jem@berkes.ca> 
+based on the first man page and DocBook format contributed by Ryan Finnie. 
+Permission is granted to copy, distribute and/or modify this document under 
+the terms of the GNU General Public License, Version 2 or any later version 
+published by the Free Software Foundation. 
+ 
+.SH "WEB SITE" 
+.PP 
+http://www.pc-tools.net/unix/grepcidr/ 
+ 
+.SH "THANKS" 
+.PP 
+Sponsored in part by the Spamhaus Project, http://www.spamhaus.org/ 
+ 
+.PP 
+Thanks to John Levine <johnl@taugh.com> for sharing his alternative 
+implementation.  I used a couple ideas from his code, such as portable 128-bit 
+numbers and support for multiple input files. However, John's version is quite 
+different and represents a significant fork in the project. 
+ 
+.PP 
+Thanks to Ryan Finnie <ryan@finnie.org> for his work on the Debian package. 
+I've adopted several of his changes including the Makefile, and the DocBook 
+format which now is the source of the man page.  Thanks to Ryan for writing 
+the first manual in DocBook format. 
+ 
+.PP 
+Many thanks to Dick Wesseling <ftu@fi.uu.nl> who suggested an improved data 
+structure format as well as binary search, to improve grepcidr performance. 
+ 
+.\" created by instant / docbook-to-man, Sun 19 Jan 2014, 01:12 

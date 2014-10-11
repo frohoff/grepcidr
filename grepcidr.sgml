@@ -1,0 +1,235 @@
+<!doctype refentry PUBLIC "-//OASIS//DTD DocBook V4.1//EN">
+
+<refentry>
+  <refentryinfo>
+    <author>
+      <firstname>Jem</firstname>
+      <surname>Berkes</surname>
+    </author>
+    <address>
+      <email>jem@berkes.ca</email>
+    </address>
+    <copyright>
+      <year>2013</year>
+      <holder>Jem Berkes</holder>
+    </copyright>
+    <date>Jan 4, 2014</date>
+  </refentryinfo>
+  <refmeta>
+    <refentrytitle>GREPCIDR</refentrytitle>
+    <manvolnum>1</manvolnum>
+  </refmeta>
+  <refnamediv>
+    <refname>grepcidr</refname>
+
+    <refpurpose>Filter IPv4 and IPv6 addresses matching CIDR patterns</refpurpose>
+  </refnamediv>
+  <refsynopsisdiv>
+    <cmdsynopsis>
+      <command>grepcidr</command>
+      <arg><option><replaceable>OPTIONS</replaceable></option></arg>
+      <arg choice="req">PATTERN</arg>
+	 <arg><option><replaceable>FILE...</replaceable></option></arg>
+    </cmdsynopsis>
+    <cmdsynopsis>
+      <command>grepcidr</command>
+      <arg><option><replaceable>OPTIONS</replaceable></option></arg>
+      <arg><option>-e <replaceable>PATTERN</replaceable></option> | <option>-f <replaceable>PATFILE</replaceable></option></arg>
+	 <arg><option><replaceable>FILE...</replaceable></option></arg>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+  <refsect1>
+    <title>DESCRIPTION</title>
+	<para>
+	<command>grepcidr</command> can be used to filter a list of IP addresses against one or more
+	Classless Inter-Domain Routing (CIDR) specifications.  As with grep, there
+	are options to invert matching and load patterns from a file.  <command>grepcidr</command> is
+	capable of efficiently processing large numbers of IPs and networks.
+	</para>
+  </refsect1>
+  <refsect1>
+    <title>OPTIONS</title>
+
+    <variablelist>
+      <varlistentry>
+        <term><option>-V</option></term>
+        <listitem>
+          <para>Show software version</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>-c</option></term>
+        <listitem>
+          <para>Display count of the matching lines, instead of showing the lines</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>-i</option></term>
+        <listitem>
+          <para>Inverse match, include lines without an IP, implies -v</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>-s</option></term>
+        <listitem>
+          <para>Enforce strict alignment of CIDR mask; host portion must be all zero</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>-v</option></term>
+        <listitem>
+          <para>Invert the sense of matching, output lines with IPs that don't match</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>-x</option></term>
+        <listitem>
+          <para>Strict matching, only look at start of line</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>-e</option></term>
+        <listitem>
+          <para>Specify individual IP or CIDR pattern(s) on command-line</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>-f</option></term>
+        <listitem>
+          <para>Load individual IP or CIDR pattern(s) from file</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect1>
+  
+  <refsect1>
+	<title>USAGE NOTES</title>
+	<para>
+	PATTERN specified on the command line may contain multiple patterns
+	separated by whitespace or commas. For long lists of network patterns,
+	use <option>-f</option> to load a file where each line contains one pattern (can be IPv4
+	or IPv6).  Blank lines and comments starting with # are ignored.
+	</para>
+	<para>Each IPv4 pattern, whether on command line or loaded from a file, may be:</para>
+	<programlisting>
+	a.b.c.d/xy        (CIDR format)
+	a.b.c.d-e.f.g.h   (IP range)
+	a.b.c.d           (Single IP)
+	</programlisting>
+	<para>And similarly for IPv6:</para>
+	<programlisting>
+	a:b:c::/xyz       (CIDR format)
+	a:b:c::           (Single IP)
+	</programlisting>
+	<para>
+	Dotted-decimal IPv4 format, or any legal IPv6 format is supported (see: man inet_pton).
+	</para>
+	<para>
+	IP addresses that appear anywhere on the input line will be compared and
+	matched against the patterns.  To be recognized, an IP (field) must end
+	with terminating text.  An IPv4 field terminates upon anything other than
+	alphanumeric or dot.  An IPv6 field terminates upon anything other than
+	alphanumeric, dot, or colon.  This is to prevent accidental matching of
+	ambiguous text such as host names containing reverse DNS.
+	</para>
+	<para>
+	Use the <option>-x</option> option to do a strict parse without searching the whole line,
+	and <command>grepcidr</command> will only look for the single IP at the start of the line.
+	</para>
+	
+  </refsect1>
+
+
+  <refsect1>
+    <title>EXAMPLES</title>
+
+    <para><emphasis><command>grepcidr</command> -f ournetworks blacklist &gt; abuse.log</emphasis></para>
+    <para>Find customers (CIDR ranges in file) that appear in blacklist</para>
+    
+    <para><emphasis><command>grepcidr</command> 2001:db8::/32 log.1 log.2</emphasis></para>
+    <para>Search for this IPv6 network inside two files</para>
+
+    <para><emphasis><command>grepcidr</command> 127.0.0.0/8 iplog</emphasis></para>
+    <para>Searches for any localnet IP addresses inside the iplog file</para>
+
+    <para><emphasis><command>grepcidr</command> "192.168.0.1-192.168.10.13" iplog</emphasis></para>
+    <para>Searches for IPs matching indicated range in the iplog file</para>
+
+    <para><emphasis><command>script</command> | <command>grepcidr</command> -vf whitelist &gt; blacklist</emphasis></para>
+    <para>Create a blacklist, with whitelisted networks removed (inverse)</para>
+
+    <para><emphasis><command>grepcidr</command> -f list1 list2</emphasis></para>
+    <para>Cross-reference two lists, outputs IPs common to both lists</para>
+
+  </refsect1>
+
+  <refsect1>
+    <title>EXIT STATUS</title>
+    <para>
+	As with grep: the exit status is 0 if matching IPs are found, and 1
+	if not found.  If an error occurred the exit status is 2. 
+    </para>
+  </refsect1>
+  
+  <refsect1>
+    <title>AUTHOR</title>
+    <para>This software and manual page was written by Jem Berkes &lt;jem@berkes.ca&gt;
+	based on the first man page and DocBook format contributed by Ryan Finnie.
+	Permission is granted to copy, distribute and/or modify this document under
+	the terms of the GNU General Public License, Version 2 or any later version
+	published by the Free Software Foundation.
+	</para>
+  </refsect1>
+
+  <refsect1>
+    <title>WEB SITE</title>
+    <para>
+	http://www.pc-tools.net/unix/grepcidr/
+    </para>
+  </refsect1>
+
+  <refsect1>
+	<title>THANKS</title>
+	
+	<para>
+	Sponsored in part by the Spamhaus Project, http://www.spamhaus.org/
+	</para>
+	
+	<para>
+	Thanks to John Levine &lt;johnl@taugh.com&gt; for sharing his alternative
+	implementation.  I used a couple ideas from his code, such as portable 128-bit
+	numbers and support for multiple input files. However, John's version is quite
+	different and represents a significant fork in the project.
+	</para>
+	
+	<para>
+	Thanks to Ryan Finnie &lt;ryan@finnie.org&gt; for his work on the Debian package.
+	I've adopted several of his changes including the Makefile, and the DocBook
+	format which now is the source of the man page.  Thanks to Ryan for writing
+	the first manual in DocBook format.
+	</para>
+
+	<para>
+	Many thanks to Dick Wesseling &lt;ftu@fi.uu.nl&gt; who suggested an improved data
+	structure format as well as binary search, to improve grepcidr performance.
+	</para>
+
+  </refsect1>
+</refentry>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:2
+sgml-indent-data:t
+sgml-parent-document:nil
+sgml-default-dtd-file:nil
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+-->

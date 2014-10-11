@@ -1,0 +1,52 @@
+Version 2.0, 2014-04-27
+=======================
+* Added IPv6 support
+* Replaced regex with 'hints' scanner (2x to 10x faster on some platforms)
+* IP text now require strict termination, avoids matching reverse DNS
+* Now complains about bad pattern formats instead of silently ignoring
+* Supports multiple file names on command line, like regular grep
+* Updated Makefile to be FreeBSD-friendly; also now includes -O3
+* Fixed invert (-v) logic and added -i to include lines without an IP
+* Now supports unlimited line length within input stream/file
+* Added -s option to enforce strict alignment of CIDR mask
+* Fixed bug, now recognizes /0 and 0.0.0.0
+
+
+Version 1.4, 2013-11-20
+=======================
+* Default behaviour in 1.4 has changed to search anywhere on line
+* Includes regex to search anywhere on line (based on Jeff Makey's patch)
+* Added -x option to search without regex, old-style strict (faster)
+* Makefile and packaging update rollup, courtesy Ryan Finnie <ryan@finnie.org>
+* Adopted DocBook man format, contributed by Ryan Finnie <ryan@finnie.org>
+* Enhanced documentation and manual page
+* Increased maximum line length to 1024 bytes
+
+
+Version 1.3, 2005-04-23
+=======================
+* Much faster than past versions due to binary search of patterns
+* Decreased memory usage
+* Applied search improvements suggested by Dick Wesseling <ftu@fi.uu.nl>
+* Now supports IP ranges as well as CIDR format
+* Improved usage to be more grep-like (e.g. filename on command line)
+* Now uses grep-like exit code (0=ok, 1=no match, 2=error)
+
+
+Version 1.2, 2004-04-23
+=======================
+* Improved algorithm for faster processing with large number of patterns
+  (approx. 50 times as fast on test set, with specs from diverse regions)
+
+
+version 1.1, 2004-02-16
+=======================
+* New algorithm has increased speed by about 2.4 times!
+* Added -c (count) option, like grep
+* Reduced memory usage in case loading large files (-f)
+* Added simple Makefile
+
+
+version 1.0, 2004-02-14
+=======================
+* First public release
