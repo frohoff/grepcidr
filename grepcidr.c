@@ -147,6 +147,7 @@ int ipv4_to_uint(const char* p, unsigned long len, unsigned int* result)
 {
 	unsigned char parsed[4] = { 0 };
 	char buf[IPV4_BUFSIZE];
+	while (len > 0 && p[len-1] == '.') len--; /* Trim trailing periods */
 	if (len > IPV4_BUFSIZE-1) return 0;	/* too long to be a valid IPv4 */
 	memset(buf, 0, sizeof(buf));
 	memcpy(buf, p, len);
